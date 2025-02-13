@@ -1,6 +1,6 @@
-import { AmbientLight, DirectionalLight, Group, Mesh, MeshPhongMaterial, MeshStandardMaterial, SphereGeometry, Vector3 } from "three";
+import { html } from "rhu/html.js";
+import { AmbientLight, BufferAttribute, BufferGeometry, DirectionalLight, Group, Mesh, MeshBasicMaterial, Texture, Vector3 } from "three";
 import { AR, PlaneTrack } from "./ar.js";
-import { DynamicSplineGeometry } from "./spline.js";
 
 const w = 924;
 const h = 693;
@@ -29,6 +29,44 @@ app.scene.add(tracker);
 
 const group = new Group();
 
+const geometry = new BufferGeometry();
+const vertices = new Float32Array([
+    -1.0, -1.0, 0.0,
+    1.0, -1.0, 0.0,
+    1.0,  1.0, 0.0,
+
+    -1.0, -1.0, 0.0,
+    1.0,  1.0, 0.0,
+    -1.0,  1.0, 0.0
+]);
+const uvs = new Float32Array([
+    0.0, 0.0,  // Bottom left
+    1.0, 0.0,  // Bottom right
+    1.0, 1.0,  // Top right
+
+    0.0, 0.0,  // Bottom left
+    1.0, 1.0,  // Top right
+    0.0, 1.0   // Top left
+]);
+geometry.setAttribute('position', new BufferAttribute(vertices, 3));
+geometry.setAttribute('uv', new BufferAttribute(uvs, 2));
+
+const wrapper = html<{ canvas: HTMLCanvasElement }>/**//*html*/`<canvas m-id="canvas" style="display: none;" width="800" height="600"></canvas>`;
+const ctx = wrapper.canvas.getContext("2d")!;
+const texture = new Texture(wrapper.canvas);
+
+const material = new MeshBasicMaterial({ map: texture, transparent: true });
+const mesh = new Mesh(geometry, material);
+group.add(mesh);
+mesh.scale.set(1, 600 / 800, 1);
+
+group.scale.set(0.5, 0.5, 1);
+
+const pos = { x: 0, y: 0 };
+
+/*import { Mesh, MeshPhongMaterial, MeshStandardMaterial, SphereGeometry } from "three";
+import { DynamicSplineGeometry } from "./spline.js";
+
 const sphereGeometry = new SphereGeometry(1);
 const nodeMaterial = new MeshPhongMaterial({ color: 0xcccccc }); 
 const weightMaterial = new MeshStandardMaterial({ color: 0xff0000 });
@@ -53,7 +91,7 @@ spline1.renderOrder = -1;
 spline0.geometry.morph([new Vector3(-3, 3, 0), new Vector3(3, 0, 0)]);
 spline1.geometry.morph([new Vector3(-3, -3, 0), new Vector3(3, 0, 0)]);
 
-group.scale.set(0.05, 0.05, 0.05);
+group.scale.set(0.05, 0.05, 0.05);*/
 
 tracker.add(group);
 
@@ -70,4 +108,26 @@ app.render = (dt) => {
     tracker.quaternion.copy(bounds.rotation);
     const scale = bounds.size.x;
     tracker.scale.set(scale, scale, scale);
+
+    ctx.clearRect(0, 0, wrapper.canvas.width, wrapper.canvas.height);
+    
+    ctx.save();
+    ctx.translate(wrapper.canvas.width/2 + pos.x, wrapper.canvas.height/2 + pos.y);
+    ctx.beginPath();
+    ctx.arc(0, 0, 60, 0, Math.PI * 2);
+    ctx.fillStyle = "rgba(255, 0, 0, 0.5)";
+    ctx.fill();
+    ctx.restore();
+
+    pos.x += 100 * dt;
+    pos.y += 100 * dt;
+
+    if (pos.x > wrapper.canvas.width/2) {
+        pos.x = -wrapper.canvas.width/2;
+    }
+    if (pos.y > wrapper.canvas.height/2) {
+        pos.y = -wrapper.canvas.height/2;
+    }
+
+    texture.needsUpdate = true;
 };
