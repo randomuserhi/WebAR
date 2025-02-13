@@ -1,5 +1,4 @@
-import { html } from "rhu/html.js";
-import { AmbientLight, BufferAttribute, BufferGeometry, DirectionalLight, Group, Mesh, MeshBasicMaterial, Texture, Vector3 } from "three";
+import { AmbientLight, DirectionalLight, Group, Mesh, Vector3 } from "three";
 import { AR, PlaneTrack } from "./ar.js";
 
 const w = 924;
@@ -29,6 +28,9 @@ app.scene.add(tracker);
 
 const group = new Group();
 
+/*import { html } from "rhu/html.js";
+import { BufferAttribute, BufferGeometry, Mesh, MeshBasicMaterial, Texture } from "three";
+
 const geometry = new BufferGeometry();
 const vertices = new Float32Array([
     -1.0, -1.0, 0.0,
@@ -51,7 +53,7 @@ const uvs = new Float32Array([
 geometry.setAttribute('position', new BufferAttribute(vertices, 3));
 geometry.setAttribute('uv', new BufferAttribute(uvs, 2));
 
-const wrapper = html<{ canvas: HTMLCanvasElement }>/**//*html*/`<canvas m-id="canvas" style="display: none;" width="800" height="600"></canvas>`;
+const wrapper = html<{ canvas: HTMLCanvasElement }>`<canvas m-id="canvas" style="display: none;" width="800" height="600"></canvas>`;
 const ctx = wrapper.canvas.getContext("2d")!;
 const texture = new Texture(wrapper.canvas);
 
@@ -62,9 +64,9 @@ mesh.scale.set(1, 600 / 800, 1);
 
 group.scale.set(0.5, 0.5, 1);
 
-const pos = { x: 0, y: 0 };
+const pos = { x: 0, y: 0 };*/
 
-/*import { Mesh, MeshPhongMaterial, MeshStandardMaterial, SphereGeometry } from "three";
+import { MeshPhongMaterial, MeshStandardMaterial, SphereGeometry } from "three";
 import { DynamicSplineGeometry } from "./spline.js";
 
 const sphereGeometry = new SphereGeometry(1);
@@ -91,7 +93,7 @@ spline1.renderOrder = -1;
 spline0.geometry.morph([new Vector3(-3, 3, 0), new Vector3(3, 0, 0)]);
 spline1.geometry.morph([new Vector3(-3, -3, 0), new Vector3(3, 0, 0)]);
 
-group.scale.set(0.05, 0.05, 0.05);*/
+group.scale.set(0.05, 0.05, 0.05);
 
 tracker.add(group);
 
@@ -109,7 +111,7 @@ app.render = (dt) => {
     const scale = bounds.size.x;
     tracker.scale.set(scale, scale, scale);
 
-    ctx.clearRect(0, 0, wrapper.canvas.width, wrapper.canvas.height);
+    /*ctx.clearRect(0, 0, wrapper.canvas.width, wrapper.canvas.height);
     
     ctx.save();
     ctx.translate(wrapper.canvas.width/2 + pos.x, wrapper.canvas.height/2 + pos.y);
@@ -129,5 +131,5 @@ app.render = (dt) => {
         pos.y = -wrapper.canvas.height/2;
     }
 
-    texture.needsUpdate = true;
+    texture.needsUpdate = true;*/
 };
