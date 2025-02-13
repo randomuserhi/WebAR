@@ -28,44 +28,6 @@ app.scene.add(tracker);
 
 const group = new Group();
 
-/*import { html } from "rhu/html.js";
-import { BufferAttribute, BufferGeometry, Mesh, MeshBasicMaterial, Texture } from "three";
-
-const geometry = new BufferGeometry();
-const vertices = new Float32Array([
-    -1.0, -1.0, 0.0,
-    1.0, -1.0, 0.0,
-    1.0,  1.0, 0.0,
-
-    -1.0, -1.0, 0.0,
-    1.0,  1.0, 0.0,
-    -1.0,  1.0, 0.0
-]);
-const uvs = new Float32Array([
-    0.0, 0.0,  // Bottom left
-    1.0, 0.0,  // Bottom right
-    1.0, 1.0,  // Top right
-
-    0.0, 0.0,  // Bottom left
-    1.0, 1.0,  // Top right
-    0.0, 1.0   // Top left
-]);
-geometry.setAttribute('position', new BufferAttribute(vertices, 3));
-geometry.setAttribute('uv', new BufferAttribute(uvs, 2));
-
-const wrapper = html<{ canvas: HTMLCanvasElement }>`<canvas m-id="canvas" style="display: none;" width="800" height="600"></canvas>`;
-const ctx = wrapper.canvas.getContext("2d")!;
-const texture = new Texture(wrapper.canvas);
-
-const material = new MeshBasicMaterial({ map: texture, transparent: true });
-const mesh = new Mesh(geometry, material);
-group.add(mesh);
-mesh.scale.set(1, 600 / 800, 1);
-
-group.scale.set(0.5, 0.5, 1);
-
-const pos = { x: 0, y: 0 };*/
-
 import { MeshPhongMaterial, MeshStandardMaterial, SphereGeometry } from "three";
 import { DynamicSplineGeometry } from "./spline.js";
 
