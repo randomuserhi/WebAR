@@ -250,7 +250,7 @@ export class AR {
     }
 
     private resize() {
-        this.arToolkitSource.onResize();	
+        this.arToolkitSource.onResize();
         this.arToolkitSource.copySizeTo(this.renderer.domElement);	
         if (this.arToolkitContext.arController !== null) {
             this.arToolkitSource.copySizeTo(this.arToolkitContext.arController.canvas);	
