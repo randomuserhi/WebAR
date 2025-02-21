@@ -1,12 +1,72 @@
 import { Clock, Matrix4, Object3D, PerspectiveCamera, Quaternion, Scene, Vector2, Vector3, WebGLRenderer } from "three";
-import { ready } from "./three.api.js";
-
-console.log(`THREE is ${ready ? "ready" : "not ready"}.`);
+import { ArMarkerControls, ArToolkitContext, ArToolkitSource } from "threex";
 
 interface Bounds {
     center: Vector3;
     rotation: Quaternion;
-    size: Vector2;
+    size: Vector3;
+}
+
+export class ImageTrack {
+    private root: Object3D;
+
+    constructor(ar: AR, image: string) {
+        this.root = new Object3D();
+        this.root.matrixAutoUpdate = false;
+        ar.scene.add(this.root);
+
+        new ArMarkerControls(ar.arToolkitContext, this.root, {
+            type: "nft", descriptorsUrl: image,
+        });
+    }
+
+    public getBounds(): Bounds | undefined {
+        const image = this.root.visible ? this.root : undefined;
+
+        if (image) {
+            return {
+                center: this.root.position,
+                rotation: this.root.quaternion,
+                size: this.root.scale
+            }; 
+        } else return undefined;
+    }
+
+    private smooth = {
+        center: new Vector3(0, 0, 0),
+        rotation: new Quaternion(0, 0, 0, 1),
+        size: new Vector3(0, 0, 0),
+        temp2: new Vector2(),
+        temp3: new Vector3(),
+        visible: 0,
+    };
+    public getBoundsSmooth(dt: number): Bounds | undefined {
+        const bounds = this.getBounds();
+        const { center, rotation, size, temp2, temp3 } = this.smooth;   
+        if (bounds === undefined) {
+            if (this.smooth.visible > 0) {
+                this.smooth.visible = Math.max(0, this.smooth.visible - dt);
+                return this.smooth;
+            } else return undefined;
+        }
+
+        this.smooth.visible = Math.min(0.5, this.smooth.visible + dt);
+
+        if (temp2.subVectors(size, bounds.size).lengthSq() > 4) {
+            size.copy(bounds.size);
+        } else {
+            size.lerp(bounds.size, 5 * dt);
+        }
+        if (temp3.subVectors(center, bounds.center).lengthSq() > 4) {
+            center.copy(bounds.center);
+        } else {
+            center.lerp(bounds.center, 10 * dt);
+        }
+
+        rotation.slerp(bounds.rotation, 2.5 * dt);
+
+        return this.smooth;
+    }
 }
 
 export class PlaneTrack {
@@ -17,9 +77,10 @@ export class PlaneTrack {
         
         for (const marker of markers) {
             const markerRoot = new Object3D();
+            markerRoot.matrixAutoUpdate = false;
             ar.scene.add(markerRoot);
             
-            new THREEx.ArMarkerControls(ar.arToolkitContext, markerRoot, {
+            new ArMarkerControls(ar.arToolkitContext, markerRoot, {
                 type: "pattern", patternUrl: marker
             });
 
@@ -38,7 +99,7 @@ export class PlaneTrack {
         tempYaxis: new Vector3(0, 0, 0),
         xaxis: new Vector3(0, 0, 0),
         yaxis: new Vector3(0, 0, 0),
-        size: new Vector2(0, 0),
+        size: new Vector3(0, 0),
     };
     public getBounds(): Bounds | undefined {
         const { center, xaxis, yaxis, normal, mat, rotation, tempRot, tempXaxis, tempYaxis, size } = PlaneTrack.FUNC_getBounds;      
@@ -48,13 +109,15 @@ export class PlaneTrack {
         const bl = this.roots[2].visible ? this.roots[2] : undefined;
         const br = this.roots[3].visible ? this.roots[3] : undefined;
 
+        console.log(`${tl !== undefined} ${tr !== undefined} ${bl !== undefined} ${br !== undefined}`);
+
         if (tl && tr && bl && br) {
             center.addVectors(tl.position, tr.position);
             center.add(bl.position);
             center.add(br.position);
             center.divideScalar(4);
 
-            size.set(0, 0);
+            size.set(0, 0, 1);
 
             xaxis.subVectors(br.position, bl.position);
             size.x += xaxis.length();
@@ -91,7 +154,7 @@ export class PlaneTrack {
 
             xaxis.subVectors(tr.position, tl.position);
             yaxis.subVectors(tr.position, br.position);
-            size.set(xaxis.length(), yaxis.length());
+            size.set(xaxis.length(), yaxis.length(), 1);
 
             xaxis.normalize();
             yaxis.normalize();
@@ -108,7 +171,7 @@ export class PlaneTrack {
 
             xaxis.subVectors(br.position, bl.position);
             yaxis.subVectors(tr.position, br.position);
-            size.set(xaxis.length(), yaxis.length());
+            size.set(xaxis.length(), yaxis.length(), 1);
 
             xaxis.normalize();
             yaxis.normalize();
@@ -125,7 +188,7 @@ export class PlaneTrack {
 
             xaxis.subVectors(br.position, bl.position);
             yaxis.subVectors(tl.position, bl.position);
-            size.set(xaxis.length(), yaxis.length());
+            size.set(xaxis.length(), yaxis.length(), 1);
 
             xaxis.normalize();
             yaxis.normalize();
@@ -142,7 +205,7 @@ export class PlaneTrack {
 
             xaxis.subVectors(tr.position, tl.position);
             yaxis.subVectors(tl.position, bl.position);
-            size.set(xaxis.length(), yaxis.length());
+            size.set(xaxis.length(), yaxis.length(), 1);
 
             xaxis.normalize();
             yaxis.normalize();
@@ -159,7 +222,7 @@ export class PlaneTrack {
     private smooth = {
         center: new Vector3(0, 0, 0),
         rotation: new Quaternion(0, 0, 0, 1),
-        size: new Vector2(0, 0),
+        size: new Vector3(0, 0, 0),
         temp2: new Vector2(),
         temp3: new Vector3(),
         visible: 0,
@@ -217,7 +280,7 @@ export class AR {
         this.camera = new PerspectiveCamera();
         this.scene.add(this.camera);
 
-        this.arToolkitSource = new THREEx.ArToolkitSource({
+        this.arToolkitSource = new ArToolkitSource({
             sourceType : "webcam",
             sourceWidth : sourceWidth ? sourceWidth : width * 2,
             sourceHeight: sourceHeight ? sourceHeight : height * 2,
@@ -227,13 +290,18 @@ export class AR {
         this.arToolkitSource.init(() => this.resize());
         window.addEventListener("resize", () => this.resize());
 
-        this.arToolkitContext = new THREEx.ArToolkitContext({
+        this.arToolkitContext = new ArToolkitContext({
             cameraParametersUrl: "data/camera_para.dat",
             detectionMode: "mono"
         });
         
         this.arToolkitContext.init(() => {
             this.camera.projectionMatrix.copy(this.arToolkitContext.getProjectionMatrix());
+
+            // use a resize to fullscreen mobile devices
+            setTimeout(() => {
+                this.resize();
+            }, 500);
         });
 
         this.clock = new Clock();
@@ -250,10 +318,10 @@ export class AR {
     }
 
     private resize() {
-        this.arToolkitSource.onResize();
-        this.arToolkitSource.copySizeTo(this.renderer.domElement);	
+        this.arToolkitSource.onResizeElement();
+        this.arToolkitSource.copyElementSizeTo(this.renderer.domElement);	
         if (this.arToolkitContext.arController !== null) {
-            this.arToolkitSource.copySizeTo(this.arToolkitContext.arController.canvas);	
+            this.arToolkitSource.copyElementSizeTo(this.arToolkitContext.arController.canvas);	
         }
     }
 }
