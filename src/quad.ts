@@ -1,5 +1,5 @@
 import { html } from "rhu/html.js";
-import { BufferAttribute, BufferGeometry, Group, Mesh, MeshBasicMaterial, Object3D, Texture } from "three";
+import { BufferAttribute, BufferGeometry, Group, Mesh, MeshBasicMaterial, Object3D, SRGBColorSpace, Texture, WebGLRenderer } from "three";
 
 const geometry = new BufferGeometry();
 const vertices = new Float32Array([
@@ -23,6 +23,8 @@ const uvs = new Float32Array([
 geometry.setAttribute('position', new BufferAttribute(vertices, 3));
 geometry.setAttribute('uv', new BufferAttribute(uvs, 2));
 
+const maxAnisotropy = new WebGLRenderer().capabilities.getMaxAnisotropy();
+
 export class QuadCanvas {
     private readonly ctx: CanvasRenderingContext2D;
     private readonly texture: Texture;
@@ -37,6 +39,8 @@ export class QuadCanvas {
         const wrapper = html<{ canvas: HTMLCanvasElement }>`<canvas m-id="canvas" style="display: none;" width="${width.toString()}" height="${height.toString()}"></canvas>`;
         this.ctx = wrapper.canvas.getContext("2d")!;
         this.texture = new Texture(wrapper.canvas);
+        this.texture.colorSpace = SRGBColorSpace;
+        this.texture.anisotropy = maxAnisotropy;
 
         const material = new MeshBasicMaterial({ map: this.texture, transparent: true });
         const mesh = new Mesh(geometry, material);

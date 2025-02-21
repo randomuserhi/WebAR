@@ -9,6 +9,8 @@ export const markers = [
     "data/pattern-3.patt"
 ];
 
+let t = 0;
+
 // 1.72 aspect ratio
 
 const w = 581;
@@ -28,6 +30,7 @@ export function update(plane: PlaneTrack, dt: number) {
     const bounds = plane.getBoundsSmooth(dt);
     if (bounds === undefined) {
         tracker.visible = false;
+        t = 0;
         return;
     }
 

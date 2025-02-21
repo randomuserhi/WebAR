@@ -9,13 +9,15 @@ export const markers = [
     "data/pattern-19.patt"
 ];
 
+let t = 0;
+
 const w = 1000;
 const h = 1000;
 
 const quad = new QuadCanvas(w, h, (ctx, dt) => {
     ctx.fillRect(0, 0, w, h);
 });
-quad.root.scale.set(0.57, 0.57, 1);
+quad.root.scale.set(0.31, 0.31, 1);
 
 export const tracker = new Group();
 tracker.add(quad.root);
@@ -26,6 +28,7 @@ export function update(plane: PlaneTrack, dt: number) {
     const bounds = plane.getBoundsSmooth(dt);
     if (bounds === undefined) {
         tracker.visible = false;
+        t = 0;
         return;
     }
 

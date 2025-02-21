@@ -1,4 +1,5 @@
 import { Group, Vector3 } from "three";
+import { loadImage } from "./animlib/animlib.js";
 import { PlaneTrack } from "./ar.js";
 import { QuadCanvas } from "./quad.js";
 
@@ -9,13 +10,25 @@ export const markers = [
     "data/pattern-11.patt"
 ];
 
+const testimg = await loadImage("neuron/main.png");
+
+let t = 0;
+
 // 1.56 aspect ratio
 
 const w = 640;
 const h = 1000;
 
 const quad = new QuadCanvas(w, h, (ctx, dt) => {
-    ctx.fillRect(0, 0, w, h);
+    ctx.clearRect(0, 0, w, h);
+
+    //ctx.fillStyle = `rgba(0, 0, 0, ${Math.min(t, 0.4)})`;
+    //ctx.fillRect(0, 0, w, h);
+
+    const scale = 1 / 4;
+    ctx.drawImage(testimg, 0, 0, testimg.width * scale, testimg.height * scale);
+
+    t += dt;
 });
 quad.root.scale.set(0.31, 0.31, 1);
 
@@ -28,6 +41,7 @@ export function update(plane: PlaneTrack, dt: number) {
     const bounds = plane.getBoundsSmooth(dt);
     if (bounds === undefined) {
         tracker.visible = false;
+        t = 0;
         return;
     }
 
