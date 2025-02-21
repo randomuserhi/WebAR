@@ -31,16 +31,16 @@ export class QuadCanvas {
 
     public render?: (ctx: CanvasRenderingContext2D, dt: number) => void;
 
-    constructor(render?: QuadCanvas["render"]) {
+    constructor(width: number, height: number, render?: QuadCanvas["render"]) {
         this.render = render;
 
-        const wrapper = html<{ canvas: HTMLCanvasElement }>`<canvas m-id="canvas" style="display: none;" width="800" height="600"></canvas>`;
+        const wrapper = html<{ canvas: HTMLCanvasElement }>`<canvas m-id="canvas" style="display: none;" width="${width.toString()}" height="${height.toString()}"></canvas>`;
         this.ctx = wrapper.canvas.getContext("2d")!;
         this.texture = new Texture(wrapper.canvas);
 
         const material = new MeshBasicMaterial({ map: this.texture, transparent: true });
         const mesh = new Mesh(geometry, material);
-        mesh.scale.set(1, 600 / 800, 1);
+        mesh.scale.set(1, height / width, 1);
         
         this.root = new Group();
         this.root.add(mesh);

@@ -109,8 +109,6 @@ export class PlaneTrack {
         const bl = this.roots[2].visible ? this.roots[2] : undefined;
         const br = this.roots[3].visible ? this.roots[3] : undefined;
 
-        console.log(`${tl !== undefined} ${tr !== undefined} ${bl !== undefined} ${br !== undefined}`);
-
         if (tl && tr && bl && br) {
             center.addVectors(tl.position, tr.position);
             center.add(bl.position);
@@ -237,7 +235,7 @@ export class PlaneTrack {
             } else return undefined;
         }
 
-        this.smooth.visible = Math.min(0.5, this.smooth.visible + dt);
+        this.smooth.visible = Math.min(0.1, this.smooth.visible + dt);
 
         if (temp2.subVectors(size, bounds.size).lengthSq() > 4) {
             size.copy(bounds.size);
