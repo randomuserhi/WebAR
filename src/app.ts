@@ -5,8 +5,8 @@ import * as flappy from "./flappy.js";
 import * as neuron from "./neuron.js";
 import * as slp from "./slp.js";
 
-const w = 924;
-const h = 693;
+const w = 940;
+const h = w * 3/4; // NOTE(randomuserhi): AR js requires 4/3 ratio
 
 const app = new AR(w, h);
 app.camera.position.set(0, 0, 0);

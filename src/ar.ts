@@ -1,5 +1,7 @@
 import { Clock, Matrix4, Object3D, PerspectiveCamera, Quaternion, Scene, Vector2, Vector3, WebGLRenderer } from "three";
-import { ArMarkerControls, ArToolkitContext, ArToolkitSource } from "threex";
+import { ready } from "./three.api.js";
+
+console.log(`THREE is ${ready ? "ready" : "not ready"}.`);
 
 interface Bounds {
     center: Vector3;
@@ -15,7 +17,7 @@ export class ImageTrack {
         this.root.matrixAutoUpdate = false;
         ar.scene.add(this.root);
 
-        new ArMarkerControls(ar.arToolkitContext, this.root, {
+        new THREEx.ArMarkerControls(ar.arToolkitContext, this.root, {
             type: "nft", descriptorsUrl: image,
         });
     }
@@ -80,7 +82,10 @@ export class PlaneTrack {
             markerRoot.matrixAutoUpdate = false;
             ar.scene.add(markerRoot);
             
-            new ArMarkerControls(ar.arToolkitContext, markerRoot, {
+            // Debug
+            //markerRoot.add(new Mesh(new BoxGeometry(), new MeshNormalMaterial()));
+
+            new THREEx.ArMarkerControls(ar.arToolkitContext, markerRoot, {
                 type: "pattern", patternUrl: marker
             });
 
@@ -278,7 +283,7 @@ export class AR {
         this.camera = new PerspectiveCamera();
         this.scene.add(this.camera);
 
-        this.arToolkitSource = new ArToolkitSource({
+        this.arToolkitSource = new THREEx.ArToolkitSource({
             sourceType : "webcam",
             sourceWidth : sourceWidth ? sourceWidth : width * 2,
             sourceHeight: sourceHeight ? sourceHeight : height * 2,
@@ -288,9 +293,9 @@ export class AR {
         this.arToolkitSource.init(() => this.resize());
         window.addEventListener("resize", () => this.resize());
 
-        this.arToolkitContext = new ArToolkitContext({
+        this.arToolkitContext = new THREEx.ArToolkitContext({
             cameraParametersUrl: "data/camera_para.dat",
-            detectionMode: "mono"
+            detectionMode: "mono",
         });
         
         this.arToolkitContext.init(() => {
@@ -299,7 +304,7 @@ export class AR {
             // use a resize to fullscreen mobile devices
             setTimeout(() => {
                 this.resize();
-            }, 500);
+            }, 2000);
         });
 
         this.clock = new Clock();
@@ -317,9 +322,9 @@ export class AR {
 
     private resize() {
         this.arToolkitSource.onResizeElement();
-        this.arToolkitSource.copyElementSizeTo(this.renderer.domElement);	
+        this.arToolkitSource.copyElementSizeTo(this.renderer.domElement);
         if (this.arToolkitContext.arController !== null) {
-            this.arToolkitSource.copyElementSizeTo(this.arToolkitContext.arController.canvas);	
+            this.arToolkitSource.copyElementSizeTo(this.arToolkitContext.arController.canvas);
         }
     }
 }

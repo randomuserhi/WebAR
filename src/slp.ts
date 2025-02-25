@@ -19,7 +19,7 @@ const h = 1000;
 const quad = new QuadCanvas(w, h, (ctx, dt) => {
     ctx.fillRect(0, 0, w, h);
 });
-quad.root.scale.set(0.31, 0.31, 1);
+quad.root.scale.set(0.55, 0.55, 1);
 
 export const tracker = new Group();
 tracker.add(quad.root);
