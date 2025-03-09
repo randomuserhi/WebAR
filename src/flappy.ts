@@ -15,6 +15,7 @@ const w = 1000;
 const h = 1000;
 
 /* START FLAPPY CODE */
+import { loadImage } from "./animlib/animlib.js";
 import { mutate, NeuralNetwork } from "./nn.js";
 
 class Agent {
@@ -232,12 +233,49 @@ for (let i = 0; i < nn.nodes.length; ++i) {
     magnitudes.push(mag);
 }
 
+const birdDownFlap = await loadImage("flappy/yellowbird-downflap.png");
+const birdMidFlap = await loadImage("flappy/yellowbird-midflap.png");
+const birdUpFlap = await loadImage("flappy/yellowbird-upflap.png");
+
+let birdFrame = 0;
+let birdFlapTime = 0;
+let birdAngle = 0;
+const birdAnim = [
+    birdDownFlap,
+    birdMidFlap,
+    birdUpFlap,
+    birdMidFlap
+] as const;
+
+const outval = 0;
+
+const pipeGreen = await loadImage("flappy/pipe-green.png");
+
 const quad = new QuadCanvas(w, h, (ctx, dt) => {
-    //ctx.fillStyle = "rgb(255, 255, 255)";
-    //ctx.fillRect(0, 0, w, h);
     ctx.clearRect(0, 0, w, h);
 
     env.tick(dt);
+
+    birdFlapTime -= dt;
+    if (birdFlapTime <= 0) {
+        birdFlapTime = 0.1;
+        birdFrame = (birdFrame + 1) % birdAnim.length;
+    }
+
+    // Save for clip region
+    ctx.save();
+
+    // Create clip region
+    ctx.save();
+    ctx.beginPath();
+    ctx.translate(w / 2, h / 2);
+    ctx.arc(0, 0, w / 2, 0, 2 * Math.PI);
+    ctx.restore();
+
+    // Clip
+    ctx.clip();
+
+    // Render Game
 
     for (let i = 0; i < env.birds.length; ++i) {
         const bird = env.birds[i];
@@ -246,10 +284,18 @@ const quad = new QuadCanvas(w, h, (ctx, dt) => {
         ctx.save();
         ctx.translate(Bird.x, bird.y);
 
-        ctx.beginPath();
+        const target = Math.clamp(-bird.vely * 0.15 - 80, -30, 85) * Math.deg2rad;
+        birdAngle += (target - birdAngle) * dt * 20;
+        ctx.rotate(birdAngle);
+        ctx.scale(3, 3);
+        
+        /*ctx.beginPath();
         ctx.arc(0, 0, Bird.height/2, 0, 2 * Math.PI);
         ctx.fillStyle = "#000000";
-        ctx.fill();
+        ctx.fill();*/
+        
+        const image = birdAnim[birdFrame];
+        ctx.drawImage(image, -image.width / 2, -image.height / 2);
 
         ctx.restore();
     }
@@ -258,13 +304,30 @@ const quad = new QuadCanvas(w, h, (ctx, dt) => {
         ctx.save();
         ctx.translate(pipe.x, pipe.y);
 
-        ctx.fillStyle = "#000000";
+        /*ctx.fillStyle = "#000000";
         ctx.fillRect(-Pipe.width / 2, -pipe.y, Pipe.width, pipe.y - Pipe.gap / 2);
-        ctx.fillRect(-Pipe.width / 2, Pipe.gap / 2, Pipe.width, env.height - pipe.y + Pipe.gap / 2);
+        ctx.fillRect(-Pipe.width / 2, Pipe.gap / 2, Pipe.width, env.height - pipe.y + Pipe.gap / 2);*/
+
+        ctx.save();
+        ctx.translate(0, Pipe.gap / 2);
+        ctx.scale(3, 3);
+        ctx.drawImage(pipeGreen, -pipeGreen.width / 2, 0);
+        ctx.restore();
+
+        ctx.save();
+        ctx.translate(0, -Pipe.gap / 2);
+        ctx.scale(3, 3);
+        ctx.rotate(Math.PI);
+        ctx.drawImage(pipeGreen, -pipeGreen.width / 2, 0);
+        ctx.restore();
 
         ctx.restore();
     }
 
+    // Restore clip region
+    ctx.restore();
+
+    // Render neurons
     ctx.save();
     ctx.translate(100, h - 100);
 
