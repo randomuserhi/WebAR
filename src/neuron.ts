@@ -23,10 +23,14 @@ const quad = new QuadCanvas(w, h, (ctx, dt) => {
     ctx.clearRect(0, 0, w, h);
 
     //ctx.fillStyle = `rgba(0, 0, 0, ${Math.min(t, 0.4)})`;
-    //ctx.fillRect(0, 0, w, h);
+    ctx.fillStyle = `#000000`;
+    ctx.fillRect(0, 0, w, h);
 
-    const scale = 1 / 4;
-    ctx.drawImage(testimg, 0, 0, testimg.width * scale, testimg.height * scale);
+    ctx.save();
+    ctx.translate(w / 2, h / 2);
+    ctx.scale(1/6, 1/6);
+    ctx.drawImage(testimg, -testimg.width / 2, -testimg.height / 2);
+    ctx.restore();
 
     t += dt;
 });
@@ -40,16 +44,19 @@ const offset = new Vector3(0, 0, 0);
 export function update(plane: PlaneTrack, dt: number) {
     const bounds = plane.getBoundsSmooth(dt);
     if (bounds === undefined) {
-        tracker.visible = false;
+        //tracker.visible = false;
         t = 0;
-        return;
+        //return;
     }
 
-    tracker.visible = true;
+    /*tracker.visible = true;
     tracker.position.copy(bounds.center).add(offset);
     tracker.quaternion.copy(bounds.rotation);
     const scale = bounds.size.x;
-    tracker.scale.set(scale, scale, 1);
+    tracker.scale.set(scale, scale, 1);*/
+
+    tracker.visible = true;
+    tracker.position.set(0, 0, -3);
 
     quad.update(dt);
 }
