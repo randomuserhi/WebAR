@@ -233,6 +233,8 @@ for (let i = 0; i < nn.nodes.length; ++i) {
     magnitudes.push(mag);
 }
 
+const background = await loadImage("flappy/background-day.png");
+
 const birdDownFlap = await loadImage("flappy/yellowbird-downflap.png");
 const birdMidFlap = await loadImage("flappy/yellowbird-midflap.png");
 const birdUpFlap = await loadImage("flappy/yellowbird-upflap.png");
@@ -276,6 +278,12 @@ const quad = new QuadCanvas(w, h, (ctx, dt) => {
     ctx.clip();
 
     // Render Game
+
+    ctx.save();
+    ctx.translate(w / 2, h / 2);
+    ctx.scale(4.5, 4.5);
+    ctx.drawImage(background, -background.width / 2, -background.height / 2 - 50);
+    ctx.restore();
 
     for (let i = 0; i < env.birds.length; ++i) {
         const bird = env.birds[i];
@@ -329,7 +337,7 @@ const quad = new QuadCanvas(w, h, (ctx, dt) => {
 
     // Render neurons
     ctx.save();
-    ctx.translate(100, h - 100);
+    ctx.translate(300, 150);
 
     for (let i = 0; i < nn.weights.length; ++i) {
         for (let j = 0; j < nn.nodes[i].length; ++j) {
@@ -337,8 +345,8 @@ const quad = new QuadCanvas(w, h, (ctx, dt) => {
                 const val = nn.weights[i][j * nn.nodes[i+1].length + k];
 
                 ctx.beginPath();
-                ctx.moveTo(i * 100, j * -50);
-                ctx.lineTo((i+1) * 100, k * -50);
+                ctx.moveTo(i * 100, j * 50);
+                ctx.lineTo((i+1) * 100, k * 50);
                 ctx.lineWidth = 4;
                 ctx.strokeStyle = `rgba(${(val < 0) ? 255 * Math.min(1, Math.max(0, Math.abs(val))) : 0}, ${(val > 0) ? 255 * Math.min(1, Math.max(0, Math.abs(val))) : 0}, 0, 1)`;
                 ctx.stroke();       
@@ -355,7 +363,7 @@ const quad = new QuadCanvas(w, h, (ctx, dt) => {
             const val = nn.nodes[i][j] / magnitudes[i][j];
 
             ctx.beginPath();
-            ctx.arc(i * 100, j * -50, 20, 0, 2 * Math.PI);
+            ctx.arc(i * 100, j * 50, 20, 0, 2 * Math.PI);
             ctx.fillStyle = `rgba(${(val < 0) ? 255 * Math.min(1, Math.max(0, Math.abs(val))) : 0}, ${(val > 0) ? 255 * Math.min(1, Math.max(0, Math.abs(val))) : 0}, 0, 1)`;
             ctx.fill();
         }
