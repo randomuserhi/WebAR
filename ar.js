@@ -1,116 +1,31 @@
 import { Clock, Matrix4, Object3D, PerspectiveCamera, Quaternion, Scene, Vector2, Vector3, WebGLRenderer } from "three";
 import { ready } from "./three.api.js";
 console.log(`THREE is ${ready ? "ready" : "not ready"}.`);
-export class PlaneTrack {
-    constructor(ar, markers) {
+export class ImageTrack {
+    constructor(ar, image) {
         this.smooth = {
             center: new Vector3(0, 0, 0),
             rotation: new Quaternion(0, 0, 0, 1),
-            size: new Vector2(0, 0),
+            size: new Vector3(0, 0, 0),
             temp2: new Vector2(),
             temp3: new Vector3(),
             visible: 0,
         };
-        this.roots = [];
-        for (const marker of markers) {
-            const markerRoot = new Object3D();
-            ar.scene.add(markerRoot);
-            new THREEx.ArMarkerControls(ar.arToolkitContext, markerRoot, {
-                type: "pattern", patternUrl: marker
-            });
-            this.roots.push(markerRoot);
-        }
+        this.root = new Object3D();
+        this.root.matrixAutoUpdate = false;
+        ar.scene.add(this.root);
+        new THREEx.ArMarkerControls(ar.arToolkitContext, this.root, {
+            type: "nft", descriptorsUrl: image,
+        });
     }
     getBounds() {
-        const { center, xaxis, yaxis, normal, mat, rotation, tempRot, tempXaxis, tempYaxis, size } = PlaneTrack.FUNC_getBounds;
-        const tl = this.roots[0].visible ? this.roots[0] : undefined;
-        const tr = this.roots[1].visible ? this.roots[1] : undefined;
-        const bl = this.roots[2].visible ? this.roots[2] : undefined;
-        const br = this.roots[3].visible ? this.roots[3] : undefined;
-        if (tl && tr && bl && br) {
-            center.addVectors(tl.position, tr.position);
-            center.add(bl.position);
-            center.add(br.position);
-            center.divideScalar(4);
-            size.set(0, 0);
-            xaxis.subVectors(br.position, bl.position);
-            size.x += xaxis.length();
-            yaxis.subVectors(tl.position, bl.position);
-            size.y += yaxis.length();
-            xaxis.normalize();
-            yaxis.normalize();
-            yaxis.copy(tempYaxis.copy(yaxis).sub(tempXaxis.copy(xaxis).multiplyScalar(xaxis.dot(yaxis))));
-            normal.crossVectors(xaxis, yaxis).normalize();
-            mat.makeBasis(xaxis, yaxis, normal);
-            rotation.setFromRotationMatrix(mat);
-            xaxis.subVectors(tr.position, tl.position);
-            size.x += xaxis.length();
-            yaxis.subVectors(tr.position, br.position);
-            size.y += yaxis.length();
-            xaxis.normalize();
-            yaxis.normalize();
-            yaxis.copy(tempYaxis.copy(yaxis).sub(tempXaxis.copy(xaxis).multiplyScalar(xaxis.dot(yaxis))));
-            normal.crossVectors(xaxis, yaxis).normalize();
-            mat.makeBasis(xaxis, yaxis, normal);
-            rotation.slerp(tempRot.setFromRotationMatrix(mat), 0.5);
-            size.divideScalar(2);
-            return PlaneTrack.FUNC_getBounds;
-        }
-        else if (tl && tr && br) {
-            center.addVectors(tl.position, br.position);
-            center.divideScalar(2);
-            xaxis.subVectors(tr.position, tl.position);
-            yaxis.subVectors(tr.position, br.position);
-            size.set(xaxis.length(), yaxis.length());
-            xaxis.normalize();
-            yaxis.normalize();
-            yaxis.copy(tempYaxis.copy(yaxis).sub(tempXaxis.copy(xaxis).multiplyScalar(xaxis.dot(yaxis))));
-            normal.crossVectors(xaxis, yaxis).normalize();
-            mat.makeBasis(xaxis, yaxis, normal);
-            rotation.setFromRotationMatrix(mat);
-            return PlaneTrack.FUNC_getBounds;
-        }
-        else if (tr && br && bl) {
-            center.addVectors(tr.position, bl.position);
-            center.divideScalar(2);
-            xaxis.subVectors(br.position, bl.position);
-            yaxis.subVectors(tr.position, br.position);
-            size.set(xaxis.length(), yaxis.length());
-            xaxis.normalize();
-            yaxis.normalize();
-            yaxis.copy(tempYaxis.copy(yaxis).sub(tempXaxis.copy(xaxis).multiplyScalar(xaxis.dot(yaxis))));
-            normal.crossVectors(xaxis, yaxis).normalize();
-            mat.makeBasis(xaxis, yaxis, normal);
-            rotation.setFromRotationMatrix(mat);
-            return PlaneTrack.FUNC_getBounds;
-        }
-        else if (br && bl && tl) {
-            center.addVectors(tl.position, br.position);
-            center.divideScalar(2);
-            xaxis.subVectors(br.position, bl.position);
-            yaxis.subVectors(tl.position, bl.position);
-            size.set(xaxis.length(), yaxis.length());
-            xaxis.normalize();
-            yaxis.normalize();
-            yaxis.copy(tempYaxis.copy(yaxis).sub(tempXaxis.copy(xaxis).multiplyScalar(xaxis.dot(yaxis))));
-            normal.crossVectors(xaxis, yaxis).normalize();
-            mat.makeBasis(xaxis, yaxis, normal);
-            rotation.setFromRotationMatrix(mat);
-            return PlaneTrack.FUNC_getBounds;
-        }
-        else if (tr && tl && bl) {
-            center.addVectors(tr.position, bl.position);
-            center.divideScalar(2);
-            xaxis.subVectors(tr.position, tl.position);
-            yaxis.subVectors(tl.position, bl.position);
-            size.set(xaxis.length(), yaxis.length());
-            xaxis.normalize();
-            yaxis.normalize();
-            yaxis.copy(tempYaxis.copy(yaxis).sub(tempXaxis.copy(xaxis).multiplyScalar(xaxis.dot(yaxis))));
-            normal.crossVectors(xaxis, yaxis).normalize();
-            mat.makeBasis(xaxis, yaxis, normal);
-            rotation.setFromRotationMatrix(mat);
-            return PlaneTrack.FUNC_getBounds;
+        const image = this.root.visible ? this.root : undefined;
+        if (image) {
+            return {
+                center: this.root.position,
+                rotation: this.root.quaternion,
+                size: this.root.scale
+            };
         }
         else
             return undefined;
@@ -143,6 +58,149 @@ export class PlaneTrack {
         return this.smooth;
     }
 }
+export class PlaneTrack {
+    constructor(ar, markers) {
+        this.smooth = {
+            center: new Vector3(0, 0, 0),
+            rotation: new Quaternion(0, 0, 0, 1),
+            size: new Vector3(0, 0, 0),
+            temp2: new Vector2(),
+            temp3: new Vector3(),
+            visible: 0,
+        };
+        this.roots = [];
+        for (const marker of markers) {
+            const markerRoot = new Object3D();
+            markerRoot.matrixAutoUpdate = false;
+            ar.scene.add(markerRoot);
+            new THREEx.ArMarkerControls(ar.arToolkitContext, markerRoot, {
+                type: "pattern", patternUrl: marker
+            });
+            this.roots.push(markerRoot);
+        }
+    }
+    getBounds() {
+        const { center, xaxis, yaxis, normal, mat, rotation, tempRot, tempXaxis, tempYaxis, size } = PlaneTrack.FUNC_getBounds;
+        const tl = this.roots[0].visible ? this.roots[0] : undefined;
+        const tr = this.roots[1].visible ? this.roots[1] : undefined;
+        const bl = this.roots[2].visible ? this.roots[2] : undefined;
+        const br = this.roots[3].visible ? this.roots[3] : undefined;
+        if (tl && tr && bl && br) {
+            center.addVectors(tl.position, tr.position);
+            center.add(bl.position);
+            center.add(br.position);
+            center.divideScalar(4);
+            size.set(0, 0, 1);
+            xaxis.subVectors(br.position, bl.position);
+            size.x += xaxis.length();
+            yaxis.subVectors(tl.position, bl.position);
+            size.y += yaxis.length();
+            xaxis.normalize();
+            yaxis.normalize();
+            yaxis.copy(tempYaxis.copy(yaxis).sub(tempXaxis.copy(xaxis).multiplyScalar(xaxis.dot(yaxis))));
+            normal.crossVectors(xaxis, yaxis).normalize();
+            mat.makeBasis(xaxis, yaxis, normal);
+            rotation.setFromRotationMatrix(mat);
+            xaxis.subVectors(tr.position, tl.position);
+            size.x += xaxis.length();
+            yaxis.subVectors(tr.position, br.position);
+            size.y += yaxis.length();
+            xaxis.normalize();
+            yaxis.normalize();
+            yaxis.copy(tempYaxis.copy(yaxis).sub(tempXaxis.copy(xaxis).multiplyScalar(xaxis.dot(yaxis))));
+            normal.crossVectors(xaxis, yaxis).normalize();
+            mat.makeBasis(xaxis, yaxis, normal);
+            rotation.slerp(tempRot.setFromRotationMatrix(mat), 0.5);
+            size.divideScalar(2);
+            return PlaneTrack.FUNC_getBounds;
+        }
+        else if (tl && tr && br) {
+            center.addVectors(tl.position, br.position);
+            center.divideScalar(2);
+            xaxis.subVectors(tr.position, tl.position);
+            yaxis.subVectors(tr.position, br.position);
+            size.set(xaxis.length(), yaxis.length(), 1);
+            xaxis.normalize();
+            yaxis.normalize();
+            yaxis.copy(tempYaxis.copy(yaxis).sub(tempXaxis.copy(xaxis).multiplyScalar(xaxis.dot(yaxis))));
+            normal.crossVectors(xaxis, yaxis).normalize();
+            mat.makeBasis(xaxis, yaxis, normal);
+            rotation.setFromRotationMatrix(mat);
+            return PlaneTrack.FUNC_getBounds;
+        }
+        else if (tr && br && bl) {
+            center.addVectors(tr.position, bl.position);
+            center.divideScalar(2);
+            xaxis.subVectors(br.position, bl.position);
+            yaxis.subVectors(tr.position, br.position);
+            size.set(xaxis.length(), yaxis.length(), 1);
+            xaxis.normalize();
+            yaxis.normalize();
+            yaxis.copy(tempYaxis.copy(yaxis).sub(tempXaxis.copy(xaxis).multiplyScalar(xaxis.dot(yaxis))));
+            normal.crossVectors(xaxis, yaxis).normalize();
+            mat.makeBasis(xaxis, yaxis, normal);
+            rotation.setFromRotationMatrix(mat);
+            return PlaneTrack.FUNC_getBounds;
+        }
+        else if (br && bl && tl) {
+            center.addVectors(tl.position, br.position);
+            center.divideScalar(2);
+            xaxis.subVectors(br.position, bl.position);
+            yaxis.subVectors(tl.position, bl.position);
+            size.set(xaxis.length(), yaxis.length(), 1);
+            xaxis.normalize();
+            yaxis.normalize();
+            yaxis.copy(tempYaxis.copy(yaxis).sub(tempXaxis.copy(xaxis).multiplyScalar(xaxis.dot(yaxis))));
+            normal.crossVectors(xaxis, yaxis).normalize();
+            mat.makeBasis(xaxis, yaxis, normal);
+            rotation.setFromRotationMatrix(mat);
+            return PlaneTrack.FUNC_getBounds;
+        }
+        else if (tr && tl && bl) {
+            center.addVectors(tr.position, bl.position);
+            center.divideScalar(2);
+            xaxis.subVectors(tr.position, tl.position);
+            yaxis.subVectors(tl.position, bl.position);
+            size.set(xaxis.length(), yaxis.length(), 1);
+            xaxis.normalize();
+            yaxis.normalize();
+            yaxis.copy(tempYaxis.copy(yaxis).sub(tempXaxis.copy(xaxis).multiplyScalar(xaxis.dot(yaxis))));
+            normal.crossVectors(xaxis, yaxis).normalize();
+            mat.makeBasis(xaxis, yaxis, normal);
+            rotation.setFromRotationMatrix(mat);
+            return PlaneTrack.FUNC_getBounds;
+        }
+        else
+            return undefined;
+    }
+    getBoundsSmooth(dt) {
+        const bounds = this.getBounds();
+        const { center, rotation, size, temp2, temp3 } = this.smooth;
+        if (bounds === undefined) {
+            if (this.smooth.visible > 0) {
+                this.smooth.visible = Math.max(0, this.smooth.visible - dt);
+                return this.smooth;
+            }
+            else
+                return undefined;
+        }
+        this.smooth.visible = Math.min(0.1, this.smooth.visible + dt);
+        if (temp2.subVectors(size, bounds.size).lengthSq() > 4) {
+            size.copy(bounds.size);
+        }
+        else {
+            size.lerp(bounds.size, 5 * dt);
+        }
+        if (temp3.subVectors(center, bounds.center).lengthSq() > 4) {
+            center.copy(bounds.center);
+        }
+        else {
+            center.lerp(bounds.center, 10 * dt);
+        }
+        rotation.slerp(bounds.rotation, 2.5 * dt);
+        return this.smooth;
+    }
+}
 PlaneTrack.FUNC_getBounds = {
     center: new Vector3(0, 0, 0),
     rotation: new Quaternion(),
@@ -154,7 +212,7 @@ PlaneTrack.FUNC_getBounds = {
     tempYaxis: new Vector3(0, 0, 0),
     xaxis: new Vector3(0, 0, 0),
     yaxis: new Vector3(0, 0, 0),
-    size: new Vector2(0, 0),
+    size: new Vector3(0, 0),
 };
 export class AR {
     constructor(width, height, sourceWidth, sourceHeight) {
@@ -178,10 +236,13 @@ export class AR {
         window.addEventListener("resize", () => this.resize());
         this.arToolkitContext = new THREEx.ArToolkitContext({
             cameraParametersUrl: "data/camera_para.dat",
-            detectionMode: "mono"
+            detectionMode: "mono",
         });
         this.arToolkitContext.init(() => {
             this.camera.projectionMatrix.copy(this.arToolkitContext.getProjectionMatrix());
+            setTimeout(() => {
+                this.resize();
+            }, 2000);
         });
         this.clock = new Clock();
         this.renderer.setAnimationLoop(() => {
@@ -195,10 +256,10 @@ export class AR {
         });
     }
     resize() {
-        this.arToolkitSource.onResize();
-        this.arToolkitSource.copySizeTo(this.renderer.domElement);
+        this.arToolkitSource.onResizeElement();
+        this.arToolkitSource.copyElementSizeTo(this.renderer.domElement);
         if (this.arToolkitContext.arController !== null) {
-            this.arToolkitSource.copySizeTo(this.arToolkitContext.arController.canvas);
+            this.arToolkitSource.copyElementSizeTo(this.arToolkitContext.arController.canvas);
         }
     }
 }

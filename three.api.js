@@ -15,4 +15,12 @@ await loadScript("./js3party/threex/threex-artoolkitsource.js");
 await loadScript("./js3party/threex/threex-artoolkitcontext.js");
 await loadScript("./js3party/threex/threex-arbasecontrols.js");
 await loadScript("./js3party/threex/threex-armarkercontrols.js");
+Math.deg2rad = Math.PI / 180.0;
+Math.rad2deg = 180.0 / Math.PI;
+Math.clamp = function (value, min, max) {
+    return Math.min(max, Math.max(value, min));
+};
+Math.clamp01 = function (value) {
+    return Math.clamp(value, 0, 1);
+};
 export const ready = true;
