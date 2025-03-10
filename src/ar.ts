@@ -285,8 +285,8 @@ export class AR {
 
         this.arToolkitSource = new THREEx.ArToolkitSource({
             sourceType : "webcam",
-            sourceWidth : sourceWidth ? sourceWidth : width * 2,
-            sourceHeight: sourceHeight ? sourceHeight : height * 2,
+            sourceWidth : sourceWidth ? sourceWidth : width,
+            sourceHeight: sourceHeight ? sourceHeight : height,
             displayWidth : width,
             displayHeight: height,
         });
