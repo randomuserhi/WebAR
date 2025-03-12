@@ -1,5 +1,5 @@
 import { Group, Vector3 } from "three";
-import { loadImage } from "./animlib/animlib.js";
+import { drawImage, loadImage } from "./animlib/animlib.js";
 import { PlaneTrack } from "./ar.js";
 import { QuadCanvas } from "./quad.js";
 
@@ -10,7 +10,22 @@ export const markers = [
     "data/pattern-11.patt"
 ];
 
-const testimg = await loadImage("neuron/main.png");
+const assetScale = 1/3;
+
+const reference = await loadImage("neuron/full.png");
+
+const body = await loadImage("neuron/body.png");
+const nucleus_back = await loadImage("neuron/nucleus_back.png");
+const nucleus_rim = await loadImage("neuron/nucleus_rim.png");
+const nucleus_dna_strands = await loadImage("neuron/nucleus_dna_strands.png");
+const nucleus_dna = await loadImage("neuron/nucleus_dna.png");
+const nucleus_highlight = await loadImage("neuron/nucleus_highlight.png");
+const sponge_yellow_0 = await loadImage("neuron/sponge_yellow_0.png");
+const sponge_yellow_1 = await loadImage("neuron/sponge_yellow_1.png");
+const sponge_blue = await loadImage("neuron/sponge_blue.png");
+const head_rim = await loadImage("neuron/head_rim.png");
+const mitochondria_0 = await loadImage("neuron/mitochondria_0.png");
+const mitochondria_1 = await loadImage("neuron/mitochondria_1.png");
 
 let t = 0;
 
@@ -19,6 +34,9 @@ let t = 0;
 const w = 1280;
 const h = 2000;
 
+(window as any).x = 0;
+(window as any).y = 0;
+
 const quad = new QuadCanvas(w, h, (ctx, dt) => {
     ctx.clearRect(0, 0, w, h);
 
@@ -26,10 +44,60 @@ const quad = new QuadCanvas(w, h, (ctx, dt) => {
     ctx.fillStyle = `#000000`;
     ctx.fillRect(0, 0, w, h);
 
+    // Reference image
+    //ctx.globalAlpha = 0.5;
+    //drawImage(ctx, reference, w / 2, h / 2, assetScale);
+    //ctx.globalAlpha = 1.0;
+    
     ctx.save();
     ctx.translate(w / 2, h / 2);
-    ctx.scale(1/3, 1/3);
-    ctx.drawImage(testimg, -testimg.width / 2, -testimg.height / 2);
+
+    // Reconstruction
+    const timescale = 0.5;
+
+    ctx.save();
+    
+    drawImage(ctx, body, 34, 0, 0, assetScale);
+
+    ctx.save();
+    ctx.translate(Math.cos(1 * t * timescale) * 5, Math.sin(1 * t * timescale) * 1.5);
+    drawImage(ctx, mitochondria_0, -32, -333, Math.cos(0.5 * t * timescale) * Math.deg2rad * 5, assetScale);
+    ctx.restore();
+
+    ctx.save();
+    ctx.translate(Math.sin(1 * t * timescale + Math.PI * 1.4) * 5, Math.cos(0.7 * t * timescale + Math.PI) * 3);
+    drawImage(ctx, sponge_blue, 32, -430, Math.cos(0.7 * t * timescale) * Math.deg2rad * 3, assetScale);
+    ctx.restore();
+
+    ctx.save();
+    ctx.translate(Math.sin(0.7 * t * timescale + Math.PI) * 4 + 5, -Math.cos(1 * t * timescale + Math.PI * 1.4) * 4 - 7);
+    drawImage(ctx, sponge_yellow_1, 95, -387, Math.sin(1 * t * timescale) * Math.deg2rad * 3, assetScale);
+    ctx.restore();
+
+    ctx.save();
+    ctx.translate(Math.cos(0.7 * t * timescale + Math.PI) * 3, Math.sin(0.7 * t * timescale + Math.PI) * 5);
+    drawImage(ctx, nucleus_back, 68, -342, 0, assetScale);
+    drawImage(ctx, nucleus_dna_strands, 61, -342, Math.sin(1 * t * timescale) * Math.deg2rad * 10, assetScale);
+    drawImage(ctx, nucleus_rim, 68, -342, 0, assetScale);
+    drawImage(ctx, nucleus_dna, 70, -342, 0, assetScale);
+    drawImage(ctx, nucleus_highlight, 80, -340, 0, assetScale);
+    ctx.restore();
+
+    ctx.save();
+    ctx.translate(Math.cos(1 * t * timescale + Math.PI * 0.4) * 5 - 3, Math.sin(0.7 * t * timescale + Math.PI * 0.4) * 3);
+    drawImage(ctx, mitochondria_1, 197, -365, Math.sin(1 * t * timescale) * Math.deg2rad * 2, assetScale);
+    ctx.restore();
+    
+    ctx.save();
+    ctx.translate(Math.sin(1 * t * timescale + Math.PI * 1.4) * 3, Math.cos(1 * t * timescale + Math.PI) * 3);
+    drawImage(ctx, sponge_yellow_0, 95, -307, Math.sin(1 * t * timescale) * Math.deg2rad * 1.5, assetScale);
+    ctx.restore();
+
+    drawImage(ctx, head_rim, 123, -306, 0, assetScale);
+    
+    ctx.restore();
+    // End Reconstruction
+
     ctx.restore();
 
     t += dt;
@@ -45,7 +113,7 @@ export function update(plane: PlaneTrack, dt: number) {
     const bounds = plane.getBoundsSmooth(dt);
     if (bounds === undefined) {
         //tracker.visible = false;
-        t = 0;
+        //t = 0;
         //return;
     }
 

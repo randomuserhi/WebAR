@@ -20,7 +20,7 @@
 	  externally from a server / user input. 
 	-->
 	<meta http-equiv="Content-Security-Policy" content="script-src 'self' 'unsafe-inline' 'unsafe-eval' blob:;">
-	<meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
+	<meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0, initial-scale=1.0">
 
 	<title>Machine Learning AR Presentation</title>
 
@@ -44,6 +44,7 @@
 	<script type="module" src="./app.js"></script>
 </head>
 
-<body style="overflow: hidden;"></body>
+<!-- https://stackoverflow.com/a/62165035 -->
+<body style="overflow: hidden; touch-action: none;"></body>
 
 </html>
