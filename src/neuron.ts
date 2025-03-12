@@ -16,8 +16,8 @@ let t = 0;
 
 // 1.56 aspect ratio
 
-const w = 640;
-const h = 1000;
+const w = 1280;
+const h = 2000;
 
 const quad = new QuadCanvas(w, h, (ctx, dt) => {
     ctx.clearRect(0, 0, w, h);
@@ -28,7 +28,7 @@ const quad = new QuadCanvas(w, h, (ctx, dt) => {
 
     ctx.save();
     ctx.translate(w / 2, h / 2);
-    ctx.scale(1/6, 1/6);
+    ctx.scale(1/3, 1/3);
     ctx.drawImage(testimg, -testimg.width / 2, -testimg.height / 2);
     ctx.restore();
 

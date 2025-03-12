@@ -274,7 +274,7 @@ export class AR {
     constructor(width: number, height: number, sourceWidth?: number, sourceHeight?: number) {
         this.scene = new Scene();
         this.renderer = new WebGLRenderer({ antialias: true, alpha: true });
-        this.renderer.setSize(width, height);
+        this.renderer.setSize(width * 2, height * 2); // TODO(randomuserhi): Custom resolution of canvas based on performance of device (select quality or something somewhere)
         this.renderer.domElement.style.position = "absolute";
         this.renderer.domElement.style.top = "0px";
         this.renderer.domElement.style.left = "0px";
