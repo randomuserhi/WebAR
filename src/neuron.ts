@@ -1,5 +1,5 @@
 import { Group, Vector3 } from "three";
-import { drawImage, loadImage } from "./animlib/animlib.js";
+import { Anim, drawImage, loadImage, Section } from "./animlib/animlib.js";
 import { PlaneTrack } from "./ar.js";
 import { QuadCanvas } from "./quad.js";
 
@@ -34,8 +34,14 @@ let t = 0;
 const w = 1280;
 const h = 2000;
 
-(window as any).x = 0;
-(window as any).y = 0;
+const anim = new Anim([
+    new Section(0, 5, (t) => {
+        console.log(`0-5: ${t}`);
+    }),
+    new Section(0, 10, (t) => {
+        console.log(`0-10: ${t}`);
+    })
+]);
 
 const quad = new QuadCanvas(w, h, (ctx, dt) => {
     ctx.clearRect(0, 0, w, h);
@@ -43,12 +49,9 @@ const quad = new QuadCanvas(w, h, (ctx, dt) => {
     //ctx.fillStyle = `rgba(0, 0, 0, ${Math.min(t, 0.4)})`;
     ctx.fillStyle = `#000000`;
     ctx.fillRect(0, 0, w, h);
-
-    // Reference image
-    //ctx.globalAlpha = 0.5;
-    //drawImage(ctx, reference, w / 2, h / 2, assetScale);
-    //ctx.globalAlpha = 1.0;
     
+    anim.exec(t);
+
     ctx.save();
     ctx.translate(w / 2, h / 2);
 
