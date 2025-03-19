@@ -20,13 +20,13 @@ export function loadImage(src: string): Promise<ImageBitmap> {
     });
 }
 
-export class Section {
+export class Section<T> {
     start: number;
     end: number;
     duration: number;
-    body: (t: number) => void;
+    body: (t: number, data: T) => void;
 
-    constructor(start: number, end: number, body: (t: number) => void) {
+    constructor(start: number, end: number, body: (t: number, data: T) => void) {
         if (end <= start) throw new SyntaxError("Invalid start and end time.");
         this.start = start;
         this.end = end;
@@ -35,11 +35,11 @@ export class Section {
     }
 }
 
-export class Anim {
-    private sections: Section[];
+export class Anim<T = any> {
+    private sections: Section<T>[];
     private duration: number;
 
-    constructor(sections: Section[]) {
+    constructor(sections: Section<T>[]) {
         this.sections = sections;
         if (this.sections.length == 0) return;
         
@@ -47,12 +47,12 @@ export class Anim {
         this.duration = this.sections[this.sections.length - 1].start + this.sections[this.sections.length - 1].duration;
     }
 
-    public exec(time: number) {
+    public exec(time: number, data: T) {
         const t = time % this.duration;
         for (let i = 0; i < this.sections.length; ++i) {
             const section = this.sections[i];
             if (t >= section.start && t <= section.end) {
-                section.body(Math.clamp01((t - section.start) / section.duration));
+                section.body(Math.clamp01((t - section.start) / section.duration), data);
             }
 
             if (t < section.start) break;

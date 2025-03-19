@@ -12,8 +12,6 @@ export const markers = [
 
 const assetScale = 1/3;
 
-const reference = await loadImage("neuron/full.png");
-
 const body = await loadImage("neuron/body.png");
 const nucleus_back = await loadImage("neuron/nucleus_back.png");
 const nucleus_rim = await loadImage("neuron/nucleus_rim.png");
@@ -34,12 +32,14 @@ let t = 0;
 const w = 1280;
 const h = 2000;
 
-const anim = new Anim([
-    new Section(0, 5, (t) => {
-        console.log(`0-5: ${t}`);
-    }),
-    new Section(0, 10, (t) => {
-        console.log(`0-10: ${t}`);
+const anim = new Anim<CanvasRenderingContext2D>([
+    new Section(0, 5, (t, ctx) => {
+        ctx.moveTo(100, 100);
+        ctx.lineTo(150, 100);
+        ctx.lineWidth = 50;
+        ctx.lineCap = "round";
+        ctx.strokeStyle = "#fff";
+        ctx.stroke();
     })
 ]);
 
@@ -50,7 +50,7 @@ const quad = new QuadCanvas(w, h, (ctx, dt) => {
     ctx.fillStyle = `#000000`;
     ctx.fillRect(0, 0, w, h);
     
-    anim.exec(t);
+    anim.exec(t, ctx);
 
     ctx.save();
     ctx.translate(w / 2, h / 2);
