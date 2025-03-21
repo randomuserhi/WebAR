@@ -2,7 +2,7 @@ const https = require('https');
 const fs = require('fs');
 const path = require('path');
 
-const hostname = '192.168.8.102';
+const hostname = '127.0.0.1';
 const port = 3000;
 const baseDir = path.join(__dirname, 'build');
 
