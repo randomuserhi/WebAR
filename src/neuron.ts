@@ -330,6 +330,12 @@ sections.push(new Section(1, 8, (t, ctx) => {
     drawImage(ctx, green_4, 37, 122);
     drawImage(ctx, green_cap_front, 60, 220);
 
+    ctx.beginPath();
+    ctx.arc(0, 0, 400, 0, 2 * Math.PI);
+    ctx.strokeStyle = "#ffffff";
+    ctx.lineWidth = 10;
+    ctx.stroke();
+
     ctx.restore();
 
     ctx.globalAlpha = 1;
@@ -511,6 +517,12 @@ sections.push(new Section(9, 16, (t, ctx) => {
             particle.scale);
     }
 
+    ctx.beginPath();
+    ctx.arc(0, 0, 370, 0, 2 * Math.PI);
+    ctx.strokeStyle = "#ffffff";
+    ctx.lineWidth = 10;
+    ctx.stroke();
+
     ctx.restore();
 
     ctx.globalAlpha = 1;
@@ -580,7 +592,7 @@ const quad = new QuadCanvas(w, h, (ctx, dt) => {
 
     t += dt;
 });
-quad.root.scale.set(0.7, 0.7, 1);
+quad.root.scale.set(0.55, 0.55, 1);
 
 export const tracker = new Group();
 tracker.add(quad.root);
@@ -602,7 +614,7 @@ export function update(plane: PlaneTrack, dt: number, filter: HTMLDivElement) {
     const scale = bounds.size.x;
     tracker.scale.set(scale, scale, 1);
     
-    filter.style.background = `rgba(0, 0, 0, ${Math.clamp01(t / 0.25) * 0.5})`;
+    filter.style.background = `rgba(0, 0, 0, ${Math.clamp01(t / 0.5) * 0.85})`;
 
     quad.update(dt);
 }
