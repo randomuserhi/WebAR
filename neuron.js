@@ -510,6 +510,7 @@ export function update(plane, dt, filter) {
         t = 0;
         return;
     }
+    tracker.visible = true;
     tracker.position.copy(bounds.center).add(offset);
     tracker.quaternion.copy(bounds.rotation);
     const scale = bounds.size.x;
