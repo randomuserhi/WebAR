@@ -401,6 +401,61 @@ sections.push(new Section(9, 16, (t, ctx) => {
     ctx.restore();
     ctx.globalAlpha = 1;
 }));
+{
+    const particles = [
+        {
+            start: [300 - 50, 350 + 1300],
+            vel: [-100, 50],
+            startRot: 50,
+            velRot: 90,
+            scale: 1,
+            color: `160, 32, 126`
+        },
+        {
+            start: [350 - 50, 250 + 1300],
+            vel: [-50, 100],
+            startRot: 20,
+            velRot: -50,
+            scale: 0.75,
+            color: `80, 22, 74`
+        },
+        {
+            start: [300 - 50, 450 + 1300],
+            vel: [-100, 20],
+            startRot: 30,
+            velRot: -150,
+            scale: 0.75,
+            color: `80, 22, 74`
+        },
+        {
+            start: [370 - 50, 370 + 1300],
+            vel: [-70, 70],
+            startRot: 10,
+            velRot: 120,
+            scale: 0.9,
+            color: `160, 32, 126`
+        },
+    ];
+    for (const particle of particles) {
+        sections.push(new Section(16, 24, (t, ctx, bezier) => {
+            ctx.save();
+            ctx.translate(particle.start[0] + (particle.vel[0] * bezier(t)), particle.start[1] + (particle.vel[1] * bezier(t)));
+            ctx.rotate(bezier(t) * Math.deg2rad * particle.velRot + particle.startRot * Math.deg2rad);
+            ctx.scale(particle.scale, particle.scale);
+            ctx.beginPath();
+            ctx.moveTo(-10, 0);
+            ctx.lineTo(10, 0);
+            ctx.lineWidth = 25;
+            ctx.lineCap = "round";
+            ctx.strokeStyle = `rgba(${particle.color}, ${(t < 0.5 ? Math.clamp01(t / 0.1) : Math.clamp01((1 - t) / 0.1))})`;
+            ctx.stroke();
+            ctx.restore();
+        }, () => {
+            const bezier = Bezier(0, .53, .69, .82);
+            return bezier;
+        }));
+    }
+}
 const anim = new Anim(sections);
 const quad = new QuadCanvas(w, h, (ctx, dt) => {
     ctx.clearRect(0, 0, w, h);
@@ -450,16 +505,10 @@ const offset = new Vector3(0, 0, 0);
 export function update(plane, dt, filter) {
     const bounds = plane.getBoundsSmooth(dt);
     if (bounds === undefined) {
-        filter.style.background = "rgba(0, 0, 0, 0)";
-        tracker.visible = false;
-        t = 0;
-        return;
+        filter.style.background = "rgba(0, 0, 0, 1)";
     }
+    tracker.position.set(0, 0, -5);
     tracker.visible = true;
-    tracker.position.copy(bounds.center).add(offset);
-    tracker.quaternion.copy(bounds.rotation);
-    const scale = bounds.size.x;
-    tracker.scale.set(scale, scale, 1);
     filter.style.background = `rgba(0, 0, 0, ${Math.clamp01(t / 0.5) * 0.85})`;
     quad.update(dt);
 }
