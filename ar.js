@@ -216,9 +216,18 @@ PlaneTrack.FUNC_getBounds = {
 };
 export class AR {
     constructor(width, height, sourceWidth, sourceHeight) {
+        this.filter = document.createElement("div");
+        this.filter.style.position = "absolute";
+        this.filter.style.top = "0px";
+        this.filter.style.left = "0px";
+        this.filter.style.width = "100%";
+        this.filter.style.height = "100%";
+        this.filter.style.zIndex = "-1";
+        this.filter.style.background = "rgba(0, 0, 0, 0)";
+        document.body.appendChild(this.filter);
         this.scene = new Scene();
         this.renderer = new WebGLRenderer({ antialias: true, alpha: true });
-        this.renderer.setSize(width, height);
+        this.renderer.setSize(width * 2, height * 2);
         this.renderer.domElement.style.position = "absolute";
         this.renderer.domElement.style.top = "0px";
         this.renderer.domElement.style.left = "0px";
@@ -227,8 +236,8 @@ export class AR {
         this.scene.add(this.camera);
         this.arToolkitSource = new THREEx.ArToolkitSource({
             sourceType: "webcam",
-            sourceWidth: sourceWidth ? sourceWidth : width * 2,
-            sourceHeight: sourceHeight ? sourceHeight : height * 2,
+            sourceWidth: sourceWidth ? sourceWidth : width,
+            sourceHeight: sourceHeight ? sourceHeight : height,
             displayWidth: width,
             displayHeight: height,
         });

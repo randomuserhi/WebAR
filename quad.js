@@ -28,7 +28,7 @@ export class QuadCanvas {
         this.texture = new Texture(wrapper.canvas);
         this.texture.colorSpace = SRGBColorSpace;
         this.texture.anisotropy = maxAnisotropy;
-        const material = new MeshBasicMaterial({ map: this.texture, transparent: true });
+        const material = new MeshBasicMaterial({ map: this.texture, transparent: true, depthTest: false, depthWrite: false });
         const mesh = new Mesh(geometry, material);
         mesh.scale.set(1, height / width, 1);
         this.root = new Group();
