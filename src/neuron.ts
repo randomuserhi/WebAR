@@ -666,20 +666,17 @@ const offset = new Vector3(0, 0, 0);
 export function update(plane: PlaneTrack, dt: number, filter: HTMLDivElement) {
     const bounds = plane.getBoundsSmooth(dt);
     if (bounds === undefined) {
-        filter.style.background = "rgba(0, 0, 0, 1)";
-        //tracker.visible = false;
-        //t = 0;
-        //return;
+        filter.style.background = "rgba(0, 0, 0, 0)";
+        tracker.visible = false;
+        t = 0;
+        return;
     }
     
-    /*tracker.visible = true;
+    tracker.visible = true;
     tracker.position.copy(bounds.center).add(offset);
     tracker.quaternion.copy(bounds.rotation);
     const scale = bounds.size.x;
-    tracker.scale.set(scale, scale, 1);*/
-
-    tracker.position.set(0, 0, -5);
-    tracker.visible = true;
+    tracker.scale.set(scale, scale, 1);
     
     filter.style.background = `rgba(0, 0, 0, ${Math.clamp01(t / 0.5) * 0.85})`;
 
