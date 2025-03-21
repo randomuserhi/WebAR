@@ -271,7 +271,19 @@ export class AR {
 
     render?: (dt: number) => void;
 
+    public filter: HTMLDivElement;
+
     constructor(width: number, height: number, sourceWidth?: number, sourceHeight?: number) {
+        this.filter = document.createElement("div");
+        this.filter.style.position = "absolute";
+        this.filter.style.top = "0px";
+        this.filter.style.left = "0px";
+        this.filter.style.width = "100%";
+        this.filter.style.height = "100%";
+        this.filter.style.zIndex = "-1";
+        this.filter.style.background = "rgba(0, 0, 0, 0)";
+        document.body.appendChild(this.filter);
+
         this.scene = new Scene();
         this.renderer = new WebGLRenderer({ antialias: true, alpha: true });
         this.renderer.setSize(width * 2, height * 2); // TODO(randomuserhi): Custom resolution of canvas based on performance of device (select quality or something somewhere)

@@ -1,4 +1,4 @@
-export function drawImage(ctx: CanvasRenderingContext2D, image: ImageBitmap, x: number, y: number, rad: number, scale: number = 1) {
+export function drawImage(ctx: CanvasRenderingContext2D, image: ImageBitmap, x: number, y: number, rad: number = 0, scale: number = 1) {
     ctx.save();
     ctx.translate(x, y);
     ctx.rotate(rad);
@@ -20,18 +20,20 @@ export function loadImage(src: string): Promise<ImageBitmap> {
     });
 }
 
-export class Section<T> {
+export class Section<T, K = any> {
     start: number;
     end: number;
     duration: number;
-    body: (t: number, data: T) => void;
+    body: (t: number, data: T, init: K) => void;
+    init?: K;
 
-    constructor(start: number, end: number, body: (t: number, data: T) => void) {
+    constructor(start: number, end: number, body: (t: number, data: T, init: K) => void, init?: () => K) {
         if (end <= start) throw new SyntaxError("Invalid start and end time.");
         this.start = start;
         this.end = end;
         this.duration = end - start;
         this.body = body;
+        this.init = init !== undefined ? init() : undefined;
     }
 }
 
@@ -43,8 +45,10 @@ export class Anim<T = any> {
         this.sections = sections;
         if (this.sections.length == 0) return;
         
+        this.sections.sort((a, b) => a.end - b.end);
+        this.duration = this.sections[this.sections.length - 1].end;
+        
         this.sections.sort((a, b) => a.start - b.start);
-        this.duration = this.sections[this.sections.length - 1].start + this.sections[this.sections.length - 1].duration;
     }
 
     public exec(time: number, data: T) {
@@ -52,7 +56,7 @@ export class Anim<T = any> {
         for (let i = 0; i < this.sections.length; ++i) {
             const section = this.sections[i];
             if (t >= section.start && t <= section.end) {
-                section.body(Math.clamp01((t - section.start) / section.duration), data);
+                section.body(Math.clamp01((t - section.start) / section.duration), data, section.init);
             }
 
             if (t < section.start) break;

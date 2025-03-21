@@ -28,6 +28,7 @@ declare global {
         deltaAngle(current: number, target: number): number;
         deg2rad: number;
         rad2deg: number;
+        randomRange(min: number, max: number): number;
     }
 }
 
@@ -39,6 +40,9 @@ Math.clamp = function (value, min, max) {
 };
 Math.clamp01 = function (value) {
     return Math.clamp(value, 0, 1);
+};
+Math.randomRange = function (min, max) {
+    return Math.random() * (max - min) + min;
 };
 
 export const ready = true;

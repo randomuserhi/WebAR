@@ -29,7 +29,7 @@ app.scene.add(backprop.tracker);
 app.scene.add(flappy.tracker);
 
 app.render = (dt) => {
-    neuron.update(neuronPlane, dt);
+    neuron.update(neuronPlane, dt, app.filter);
     slp.update(slpPlane, dt);
     backprop.update(backpropPlane, dt);
     flappy.update(flappyPlane, dt);
